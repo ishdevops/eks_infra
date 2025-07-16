@@ -9,6 +9,13 @@ resource "aws_eks_cluster" "this" {
     endpoint_public_access  = false
   }
 
+  encryption_config {
+    resources = ["secrets"]
+    provider {
+      key_arn = var.secrets_kms_key_arn
+    }
+  }
+
   enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
   tags = var.tags

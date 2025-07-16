@@ -52,4 +52,9 @@ variable "tags" {
   description = "Tags to apply to resources."
   type        = map(string)
   default     = {}
+}
+
+variable "secrets_kms_key_arn" {
+  description = "KMS key ARN for EKS secrets encryption."
+  type        = string
 } 

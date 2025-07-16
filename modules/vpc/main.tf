@@ -5,6 +5,33 @@ resource "aws_vpc" "this" {
   tags = merge(var.tags, { Name = "${var.name}-vpc" })
 }
 
+resource "aws_flow_log" "vpc" {
+  vpc_id = aws_vpc.this.id
+  traffic_type = "ALL"
+  log_destination_type = "cloud-watch-logs"
+  log_group_name = "/aws/vpc/flowlogs/${var.name}"
+  iam_role_arn = aws_iam_role.vpc_flow_logs.arn
+}
+
+resource "aws_iam_role" "vpc_flow_logs" {
+  name = "${var.name}-vpc-flow-logs-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "vpc-flow-logs.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "vpc_flow_logs" {
+  role       = aws_iam_role.vpc_flow_logs.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+}
+
 resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
   tags = merge(var.tags, { Name = "${var.name}-igw" })

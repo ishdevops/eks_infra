@@ -1,6 +1,7 @@
 resource "aws_secretsmanager_secret" "this" {
   name = var.name
   description = var.description
+  # kms_key_id = aws_kms_key.secrets.arn # Uncomment to use a customer-managed key
   tags = var.tags
 }
 
