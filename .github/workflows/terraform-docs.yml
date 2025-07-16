@@ -1,0 +1,46 @@
+name: Terraform Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.tf'
+      - 'README.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - '**.tf'
+      - 'README.md'
+
+jobs:
+  terraform-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: Install terraform-docs
+        run: |
+          wget https://github.com/terraform-docs/terraform-docs/releases/download/v0.17.0/terraform-docs-v0.17.0-linux-amd64.tar.gz
+          tar -xzf terraform-docs-v0.17.0-linux-amd64.tar.gz
+          sudo mv terraform-docs /usr/local/bin/
+
+      - name: Generate Terraform docs
+        run: terraform-docs markdown table . > tfdocs.md
+
+      - name: Update README.md
+        run: |
+          awk '/<!-- BEGIN_TF_DOCS -->/{flag=1;print;next}/<!-- END_TF_DOCS -->/{flag=0}flag{next}1' README.md > tmp && mv tmp README.md
+          cat tfdocs.md >> README.md
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'docs: update terraform-docs in README.md'
+          branch: main
+          file_pattern: README.md 
