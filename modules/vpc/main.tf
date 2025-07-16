@@ -6,8 +6,9 @@ resource "aws_vpc" "this" {
 }
 
 resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
-  name = "/aws/vpc/flowlogs/${var.name}"
+  name              = "/aws/vpc/flowlogs/${var.name}"
   retention_in_days = 30
+  kms_key_id        = var.kms_key_arn
 }
 
 resource "aws_flow_log" "vpc" {
