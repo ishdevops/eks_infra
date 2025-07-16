@@ -45,8 +45,10 @@ jobs:
 
       - name: Install gitleaks
         run: |
-          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o /usr/local/bin/gitleaks
-          chmod +x /usr/local/bin/gitleaks
+          curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/scripts/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Check gitleaks version
+        run: gitleaks version
 
       - name: Run gitleaks
         run: gitleaks detect --source . --no-git -v
