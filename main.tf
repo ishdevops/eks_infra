@@ -32,6 +32,7 @@ module "eks" {
   node_desired_size   = 2
   node_min_size       = 2
   node_max_size       = 4
+  secrets_kms_key_arn = aws_kms_key.main.arn
   tags = {
     Project = "eks-infra"
     Environment = "dev"
@@ -44,6 +45,7 @@ module "dynamodb" {
   hash_key              = "id"
   hash_key_type         = "S"
   additional_attributes = []
+  kms_key_arn           = aws_kms_key.main.arn
   tags = {
     Project = "eks-infra"
     Environment = "dev"
@@ -55,8 +57,17 @@ module "secrets_manager" {
   name          = "eks-infra-secret"
   description   = "App secret for eks infra"
   secret_string = "{\"db_password\":\"supersecret\"}"
+  kms_key_arn   = aws_kms_key.main.arn
   tags = {
     Project = "eks-infra"
     Environment = "dev"
   }
-} 
+}
+
+resource "aws_kms_key" "main" {
+  description             = "KMS key for EKS Infra resources"
+  enable_key_rotation     = true
+  deletion_window_in_days = 10
+}
+
+# Pass the KMS key ARN to modules/resources as needed 

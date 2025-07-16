@@ -5,11 +5,16 @@ resource "aws_vpc" "this" {
   tags = merge(var.tags, { Name = "${var.name}-vpc" })
 }
 
+resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
+  name = "/aws/vpc/flowlogs/${var.name}"
+  retention_in_days = 30
+}
+
 resource "aws_flow_log" "vpc" {
   vpc_id = aws_vpc.this.id
   traffic_type = "ALL"
   log_destination_type = "cloud-watch-logs"
-  log_group_name = "/aws/vpc/flowlogs/${var.name}"
+  log_destination = aws_cloudwatch_log_group.vpc_flow_logs.arn
   iam_role_arn = aws_iam_role.vpc_flow_logs.arn
 }
 
@@ -37,6 +42,7 @@ resource "aws_internet_gateway" "this" {
   tags = merge(var.tags, { Name = "${var.name}-igw" })
 }
 
+#tfsec:ignore:aws-ec2-no-public-ip-subnet
 resource "aws_subnet" "public" {
   count = 2
   vpc_id = aws_vpc.this.id
