@@ -1,9 +1,9 @@
 resource "helm_release" "istio_base" {
-  provider   = helm.eks
-  name       = "istio-base"
-  repository = "https://istio-release.storage.googleapis.com/charts"
-  chart      = "base"
-  namespace  = "istio-system"
+  provider         = helm.eks
+  name             = "istio-base"
+  repository       = "https://istio-release.storage.googleapis.com/charts"
+  chart            = "base"
+  namespace        = "istio-system"
   create_namespace = true
 }
 

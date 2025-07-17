@@ -1,8 +1,18 @@
+terraform {
+  required_version = ">= 1.3.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+}
+
 resource "aws_s3_bucket" "tf_state" {
-  bucket = var.bucket_name
+  bucket        = var.bucket_name
   force_destroy = true
   tags = {
-    Project = "eks-infra"
+    Project     = "eks-infra"
     Environment = "bootstrap"
   }
 }
@@ -23,7 +33,7 @@ resource "aws_dynamodb_table" "tf_lock" {
     type = "S"
   }
   tags = {
-    Project = "eks-infra"
+    Project     = "eks-infra"
     Environment = "bootstrap"
   }
 }
@@ -56,7 +66,7 @@ resource "aws_iam_role" "github_actions" {
     }]
   })
   tags = {
-    Project = "eks-infra"
+    Project     = "eks-infra"
     Environment = "bootstrap"
   }
 }

@@ -1,7 +1,17 @@
+terraform {
+  required_version = ">= 1.3.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+}
+
 resource "aws_iam_role" "eks_cluster" {
-  name = "${var.name}-eks-cluster-role"
+  name               = "${var.name}-eks-cluster-role"
   assume_role_policy = data.aws_iam_policy_document.eks_cluster_assume_role.json
-  tags = var.tags
+  tags               = var.tags
 }
 
 data "aws_iam_policy_document" "eks_cluster_assume_role" {
@@ -25,9 +35,9 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_vpc" {
 }
 
 resource "aws_iam_role" "eks_node" {
-  name = "${var.name}-eks-node-role"
+  name               = "${var.name}-eks-node-role"
   assume_role_policy = data.aws_iam_policy_document.eks_node_assume_role.json
-  tags = var.tags
+  tags               = var.tags
 }
 
 data "aws_iam_policy_document" "eks_node_assume_role" {

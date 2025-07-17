@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "./modules/vpc"
+  source                = "./modules/vpc"
   name                  = "eks-infra"
   vpc_cidr              = "10.0.0.0/16"
   public_subnet_cidrs   = ["10.0.1.0/24", "10.0.2.0/24"]
@@ -8,7 +8,7 @@ module "vpc" {
   azs                   = slice(data.aws_availability_zones.available.names, 0, 2)
   kms_key_arn           = aws_kms_key.main.arn
   tags = {
-    Project = "eks-infra"
+    Project     = "eks-infra"
     Environment = "dev"
   }
 }
@@ -17,7 +17,7 @@ module "iam" {
   source = "./modules/iam"
   name   = "eks-infra"
   tags = {
-    Project = "eks-infra"
+    Project     = "eks-infra"
     Environment = "dev"
   }
 }
@@ -35,7 +35,7 @@ module "eks" {
   node_max_size       = 4
   secrets_kms_key_arn = aws_kms_key.main.arn
   tags = {
-    Project = "eks-infra"
+    Project     = "eks-infra"
     Environment = "dev"
   }
 }
@@ -48,7 +48,7 @@ module "dynamodb" {
   additional_attributes = []
   kms_key_arn           = aws_kms_key.main.arn
   tags = {
-    Project = "eks-infra"
+    Project     = "eks-infra"
     Environment = "dev"
   }
 }
@@ -60,7 +60,7 @@ module "secrets_manager" {
   secret_string = "{\"db_password\":\"supersecret\"}"
   kms_key_arn   = aws_kms_key.main.arn
   tags = {
-    Project = "eks-infra"
+    Project     = "eks-infra"
     Environment = "dev"
   }
 }
