@@ -95,8 +95,12 @@ jobs:
         run: terraform fmt -check
 
       - name: Terraform Plan
-        id: plan
-        run: terraform plan -no-color
+        run: terraform plan -out=tfplan
+      - name: Upload planfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: tfplan
 
       - name: Comment Plan on PR
         if: github.event_name == 'pull_request'
@@ -111,9 +115,13 @@ jobs:
               body: output
             });
 
+      - name: Download planfile
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
       - name: Terraform Apply
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve 
+        run: terraform apply tfplan
 
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
