@@ -146,20 +146,19 @@ resource "aws_security_group" "frontend_pods" {
   description = "SG for frontend pods (SGP)"
   vpc_id      = aws_vpc.this.id
 
-  # Example: allow inbound from ALB SG (to be set in infra)
   ingress {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [var.alb_sg_id] # Pass ALB SG ID from root
+    security_groups = [var.alb_sg_id]
+    description     = "Allow HTTP from ALB SG"
   }
-
-  # Allow all egress
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
   }
 }
 
@@ -168,20 +167,19 @@ resource "aws_security_group" "backend_pods" {
   description = "SG for backend pods (SGP)"
   vpc_id      = aws_vpc.this.id
 
-  # Example: allow inbound from frontend pods SG
   ingress {
     from_port       = 8080
     to_port         = 8080
     protocol        = "tcp"
     security_groups = [aws_security_group.frontend_pods.id]
+    description     = "Allow app traffic from frontend pods"
   }
-
-  # Allow all egress
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
   }
 }
 

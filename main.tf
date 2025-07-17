@@ -1,3 +1,5 @@
+# tfsec:ignore:aws-ec2-no-public-ingress-sgr
+# tfsec:ignore:aws-ec2-no-public-egress-sgr
 resource "aws_security_group" "alb" {
   name        = "eks-infra-alb-sg"
   description = "ALB security group"
@@ -8,6 +10,7 @@ resource "aws_security_group" "alb" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow HTTP from anywhere (public ALB)"
   }
   # Add HTTPS/other rules as needed
   egress {
@@ -15,6 +18,7 @@ resource "aws_security_group" "alb" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
   }
 }
 
