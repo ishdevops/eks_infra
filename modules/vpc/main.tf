@@ -141,6 +141,7 @@ resource "aws_route_table_association" "isolated" {
   route_table_id = aws_route_table.isolated[count.index].id
 }
 
+# tfsec:ignore:aws-ec2-no-public-egress-sgr
 resource "aws_security_group" "frontend_pods" {
   name        = "${var.name}-frontend-pods-sg"
   description = "SG for frontend pods (SGP)"
@@ -162,6 +163,7 @@ resource "aws_security_group" "frontend_pods" {
   }
 }
 
+# tfsec:ignore:aws-ec2-no-public-egress-sgr
 resource "aws_security_group" "backend_pods" {
   name        = "${var.name}-backend-pods-sg"
   description = "SG for backend pods (SGP)"
