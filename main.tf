@@ -1,3 +1,23 @@
+resource "aws_security_group" "alb" {
+  name        = "eks-infra-alb-sg"
+  description = "ALB security group"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  # Add HTTPS/other rules as needed
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 module "vpc" {
   source                = "./modules/vpc"
   name                  = "eks-infra"
@@ -7,6 +27,8 @@ module "vpc" {
   isolated_subnet_cidrs = ["10.0.21.0/24", "10.0.22.0/24"]
   azs                   = slice(data.aws_availability_zones.available.names, 0, 2)
   kms_key_arn           = aws_kms_key.main.arn
+  alb_sg_id             = aws_security_group.alb.id
+  aws_region            = var.aws_region
   tags = {
     Project     = "eks-infra"
     Environment = "dev"
@@ -66,5 +88,3 @@ module "secrets_manager" {
     Environment = "dev"
   }
 }
-
-# Pass the KMS key ARN to modules/resources as needed 

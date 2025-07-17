@@ -6,6 +6,8 @@ on:
 jobs:
   destroy:
     runs-on: ubuntu-latest
+    env:
+      AWS_REGION: eu-west-2
     steps:
       - uses: actions/checkout@v4
       - name: Set up Terraform

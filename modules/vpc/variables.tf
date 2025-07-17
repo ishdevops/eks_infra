@@ -37,4 +37,14 @@ variable "tags" {
 variable "kms_key_arn" {
   description = "KMS key ARN for encrypting VPC flow logs"
   type        = string
+}
+
+variable "alb_sg_id" {
+  description = "Security group ID for the ALB to allow ingress to frontend pods."
+  type        = string
+}
+
+variable "aws_region" {
+  description = "AWS region for VPC endpoint services."
+  type        = string
 } 

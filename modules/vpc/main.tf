@@ -139,4 +139,58 @@ resource "aws_route_table_association" "isolated" {
   count          = 2
   subnet_id      = aws_subnet.isolated[count.index].id
   route_table_id = aws_route_table.isolated[count.index].id
+}
+
+resource "aws_security_group" "frontend_pods" {
+  name        = "${var.name}-frontend-pods-sg"
+  description = "SG for frontend pods (SGP)"
+  vpc_id      = aws_vpc.this.id
+
+  # Example: allow inbound from ALB SG (to be set in infra)
+  ingress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [var.alb_sg_id] # Pass ALB SG ID from root
+  }
+
+  # Allow all egress
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "backend_pods" {
+  name        = "${var.name}-backend-pods-sg"
+  description = "SG for backend pods (SGP)"
+  vpc_id      = aws_vpc.this.id
+
+  # Example: allow inbound from frontend pods SG
+  ingress {
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.frontend_pods.id]
+  }
+
+  # Allow all egress
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_vpc_endpoint" "dynamodb" {
+  vpc_id            = aws_vpc.this.id
+  service_name      = "com.amazonaws.${var.aws_region}.dynamodb"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = concat(aws_route_table.private[*].id, aws_route_table.isolated[*].id)
+  tags = {
+    Name = "${var.name}-dynamodb-endpoint"
+  }
 } 
