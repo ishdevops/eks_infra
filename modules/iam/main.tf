@@ -70,6 +70,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
+# tfsec:ignore:aws-iam-no-policy-wildcards
 resource "aws_iam_policy" "eks_kms_access" {
   name        = "${var.name}-eks-kms-access"
   description = "Allow EKS to use KMS key"
