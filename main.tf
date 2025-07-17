@@ -14,8 +14,10 @@ module "vpc" {
 }
 
 module "iam" {
-  source = "./modules/iam"
-  name   = "eks-infra"
+  source             = "./modules/iam"
+  name               = "eks-infra"
+  kms_key_arn        = aws_kms_key.main.arn
+  dynamodb_table_arn = module.dynamodb.table_arn
   tags = {
     Project     = "eks-infra"
     Environment = "dev"
@@ -63,12 +65,6 @@ module "secrets_manager" {
     Project     = "eks-infra"
     Environment = "dev"
   }
-}
-
-resource "aws_kms_key" "main" {
-  description             = "KMS key for EKS Infra resources"
-  enable_key_rotation     = true
-  deletion_window_in_days = 10
 }
 
 # Pass the KMS key ARN to modules/resources as needed 

@@ -68,4 +68,59 @@ resource "aws_iam_role_policy_attachment" "ecr_readonly" {
 resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
   role       = aws_iam_role.eks_node.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+resource "aws_iam_policy" "eks_kms_access" {
+  name        = "${var.name}-eks-kms-access"
+  description = "Allow EKS to use KMS key"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ]
+        Resource = var.kms_key_arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "eks_dynamodb_access" {
+  name        = "${var.name}-eks-dynamodb-access"
+  description = "Allow EKS to access DynamoDB table"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:PutItem",
+          "dynamodb:GetItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:BatchWriteItem",
+          "dynamodb:BatchGetItem",
+          "dynamodb:Query",
+          "dynamodb:Scan"
+        ]
+        Resource = var.dynamodb_table_arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "eks_kms_access" {
+  role       = aws_iam_role.eks_node.name
+  policy_arn = aws_iam_policy.eks_kms_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "eks_dynamodb_access" {
+  role       = aws_iam_role.eks_node.name
+  policy_arn = aws_iam_policy.eks_dynamodb_access.arn
 } 
