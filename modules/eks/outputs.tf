@@ -12,4 +12,14 @@ output "cluster_certificate_authority" {
 
 output "node_group_role_arn" {
   value = var.node_role_arn
+}
+
+output "oidc_provider_arn" {
+  description = "ARN of the EKS OIDC provider."
+  value       = aws_iam_openid_connect_provider.eks.arn
+}
+
+output "oidc_provider_url" {
+  description = "URL of the EKS OIDC provider (without https://)."
+  value       = replace(aws_iam_openid_connect_provider.eks.url, "https://", "")
 } 

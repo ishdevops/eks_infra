@@ -92,6 +92,48 @@ resource "aws_iam_policy" "eks_kms_access" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "eks_kms_access" {
+  role       = aws_iam_role.eks_node.name
+  policy_arn = aws_iam_policy.eks_kms_access.arn
+}
+
+
+resource "aws_iam_role" "backend_irsa" {
+  name = "${var.name}-backend-irsa"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = var.oidc_provider_arn
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "${var.oidc_provider_url}:sub" = "system:serviceaccount:${var.backend_namespace}:${var.backend_serviceaccount}"
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "backend_irsa_kms" {
+  role       = aws_iam_role.backend_irsa.name
+  policy_arn = aws_iam_policy.eks_kms_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "backend_irsa_dynamodb" {
+  role       = aws_iam_role.backend_irsa.name
+  policy_arn = aws_iam_policy.eks_dynamodb_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "backend_irsa_secrets" {
+  role       = aws_iam_role.backend_irsa.name
+  policy_arn = aws_iam_policy.backend_secrets_access.arn
+}
+
 resource "aws_iam_policy" "eks_dynamodb_access" {
   name        = "${var.name}-eks-dynamodb-access"
   description = "Allow EKS to access DynamoDB table"
@@ -116,12 +158,17 @@ resource "aws_iam_policy" "eks_dynamodb_access" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "eks_kms_access" {
-  role       = aws_iam_role.eks_node.name
-  policy_arn = aws_iam_policy.eks_kms_access.arn
-}
-
-resource "aws_iam_role_policy_attachment" "eks_dynamodb_access" {
-  role       = aws_iam_role.eks_node.name
-  policy_arn = aws_iam_policy.eks_dynamodb_access.arn
+resource "aws_iam_policy" "backend_secrets_access" {
+  name        = "${var.name}-backend-secrets-access"
+  description = "Allow backend to access dummy API key in Secrets Manager"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["secretsmanager:GetSecretValue"]
+        Resource = var.dummy_api_key_arn
+      }
+    ]
+  })
 } 

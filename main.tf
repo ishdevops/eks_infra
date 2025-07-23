@@ -40,10 +40,15 @@ module "vpc" {
 }
 
 module "iam" {
-  source             = "./modules/iam"
-  name               = "eks-infra"
-  kms_key_arn        = aws_kms_key.main.arn
-  dynamodb_table_arn = module.dynamodb.table_arn
+  source                 = "./modules/iam"
+  name                   = "eks-infra"
+  kms_key_arn            = aws_kms_key.main.arn
+  dynamodb_table_arn     = module.dynamodb.table_arn
+  oidc_provider_arn      = module.eks.oidc_provider_arn
+  oidc_provider_url      = module.eks.oidc_provider_url
+  backend_namespace      = "staging"    # or your chosen namespace
+  backend_serviceaccount = "backend-sa" # or your chosen SA name
+  dummy_api_key_arn      = aws_secretsmanager_secret.dummy_api_key.arn
   tags = {
     Project     = "eks-infra"
     Environment = "dev"
